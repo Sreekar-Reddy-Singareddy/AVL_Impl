@@ -26,7 +26,7 @@ public class Tree {
         }
         else if (node.getData() < current.getData() && current.getLeft() != null) {
             insert(current.getLeft(), node);
-            current.setBf(current.getBf()+1);
+            if (!doneBalancing) current.setBf(current.getBf()+1);
             if (current.getBf() == 2 && !doneBalancing) {
                 // Imbalanced
                 Node child = current.getLeft();
@@ -37,7 +37,7 @@ public class Tree {
         }
         else if (node.getData() >= current.getData() && current.getRight() != null) {
             insert(current.getRight(), node);
-            current.setBf(current.getBf()-1);
+            if (!doneBalancing) current.setBf(current.getBf()-1);
             if (current.getBf() == -2 && !doneBalancing) {
                 // Imbalanced
                 Node child = current.getRight();
@@ -46,8 +46,6 @@ public class Tree {
                 doneBalancing = true;
             }
         }
-
-        computeHeight(root);
     }
 
     private void balanceTheNode(Node pin, Node child, Node gChild) {
@@ -63,6 +61,7 @@ public class Tree {
         else if (child.equals(pin.getRight()) && gChild.equals(child.getLeft())) { // CASE 4
             rotateRL(pin, child, gChild);
         }
+        computeHeight(root);
     }
 
     private int computeHeight(Node node) {

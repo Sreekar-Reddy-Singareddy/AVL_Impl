@@ -1,19 +1,19 @@
 public class Node {
-    private int height;
+    private int bf, height;
     private int data;
     private Node left, right;
 
     public Node (int data) {
         this.data = data;
-        height = 0;
+        bf = 0;
     }
 
-    public int getHeight() {
-        return height;
+    public int getBf() {
+        return bf;
     }
 
-    public void setHeight(int height) {
-        this.height = height;
+    public void setBf(int bf) {
+        this.bf = bf;
     }
 
     public int getData() {
@@ -38,5 +38,13 @@ public class Node {
 
     public void setRight(Node right) {
         this.right = right;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 }

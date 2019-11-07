@@ -1,7 +1,7 @@
 public class Node {
-    private int bf, height;
-    private int data;
-    private Node left, right;
+    public int bf, height;
+    public int data;
+    public Node left, right;
 
     public Node (int data) {
         this.data = data;

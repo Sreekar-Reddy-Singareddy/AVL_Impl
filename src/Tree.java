@@ -48,6 +48,46 @@ public class Tree {
         }
     }
 
+    // This method works ONLY for deletion using predecessor
+    // Based on question, it is assumed that there will always be
+    // a predecessor for node 100
+    public void deleteNode(int val) {
+        Node d = getNodeFor(val, root);
+        Node dParent = getParentFor(root, d);
+        Node p = getPredecessorFor(d);
+        Node pParent = null;
+        if (p != null) pParent = getParentFor(root, p); // No need to get parent if there is no child
+
+        // Change the node links now
+        if ((pParent != null && pParent != d)) {
+            // Preserve the left sub-tree of the predecessor
+            pParent.right = p.left;
+        }
+        if (p != null && d != null) {
+            if (pParent != d) p.left = d.left; // If pParent and d are equal it results in self-reference by p
+            p.right = d.right;
+        }
+        if (dParent != null) {
+            // NOT a root node
+            if (d.data > dParent.data) {
+                // The deleted node is on right side
+                // So update the dParent's right to predecessor
+                dParent.right = p;
+            }
+            else if (d.data < dParent.data) {
+                // The deleted node is on left side
+                // So update the dParent's left to predecessor
+                dParent.left = p;
+            }
+        }
+        else {
+            // The root node is deleted
+            // Hence, the new root node is the predecessor
+            root = p;
+        }
+        computeHeight(root);
+    }
+
     private void balanceTheNode(Node pin, Node child, Node gChild) {
         if (child.equals(pin.getRight()) && gChild.equals(child.getRight())) { // CASE 1
             rotateRR(pin, child, gChild);
@@ -73,11 +113,30 @@ public class Tree {
         int rHeight = computeHeight(node.getRight());
         node.setHeight(Math.max(lHeight, rHeight)+1);
         node.setBf(lHeight-rHeight);
+
+        Node p, c = null, gc;
+        if (Math.abs(node.getBf()) > 1) {
+            if (node.getBf() == -2) {
+                p = node;
+                c = node.right;
+            }
+            else{
+                p = node;
+                c = node.left;
+            }
+            if (c.left.getHeight() > c.right.getHeight()) {
+                gc = c.left;
+            }
+            else {
+                gc = c.right;
+            }
+            balanceTheNode(p, c, gc);
+        }
         return node.getHeight();
     }
 
     private void rotateRR(Node pin, Node child, Node gChild) {
-        Node pinParent = getParent(root, pin);
+        Node pinParent = getParentFor(root, pin);
         if (pinParent != null) pinParent.setRight(child);
         else root = child;
         pin.setRight(child.getLeft());
@@ -85,7 +144,7 @@ public class Tree {
     }
 
     private void rotateLL(Node pin, Node child, Node gChild) {
-        Node pinParent = getParent(root, pin);
+        Node pinParent = getParentFor(root, pin);
         if (pinParent != null) pinParent.setLeft(child);
         else root = child;
         pin.setLeft(child.getRight());
@@ -110,13 +169,35 @@ public class Tree {
         rotateRR(pin, gChild, child);
     }
 
-    public Node getParent(Node root, Node node) {
-        if (node == root) return null;
-        if (root.getLeft() == node || root.getRight() == null) return root;
-        Node t1 = getParent(root.getLeft(), node);
-        Node t2 = getParent(root.getRight(), node);
-        if (t1 == null) return t2;
-        else return t1;
+    public Node getParentFor(Node root, Node n) {
+        if (root == n) return null;
+        else if (n.data > root.data) {
+            if (root.right == n) return root;
+            return getParentFor(root.right, n);
+        }
+        else if (n.data < root.data) {
+            if (root.left == n) return root;
+            return getParentFor(root.left, n);
+        }
+        return null;
+    }
+
+    public Node getNodeFor(int val, Node root) {
+        if (root == null) {
+            // No node found with this value
+            return null;
+        }
+        else if (val < root.data) {
+            // Go on left side
+            return getNodeFor(val, root.left);
+        }
+        else if (val > root.data) {
+            // Go on right side
+            return getNodeFor(val, root.right);
+        }
+        else {
+            return root;
+        }
     }
 
     public void inOrderTraverse (Node current) {
@@ -138,6 +219,16 @@ public class Tree {
             System.out.println("P -> "+current.getData()+" L -> NULL"+" R -> NULL"+" H = "+current.getHeight()+" BF: "+current.getBf());
         preOrderTraverse(current.getLeft());
         preOrderTraverse(current.getRight());
+    }
+
+    private Node getPredecessorFor(Node n) {
+        if (n.left == null) return null;
+        return searchPredecessor(n.left);
+    }
+
+    private Node searchPredecessor(Node node) {
+        if (node.right == null) return node;
+        return searchPredecessor(node.right);
     }
 
     public Node getRoot() {
